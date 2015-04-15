@@ -1,22 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
 
 namespace PythonLab
 {
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private string command;
-        private string input = "";
+        private readonly List<string> history = new List<string>();
         private int offset;
-        private Process process;
-        private BackgroundWorker pythonErrorReader;
-        private BackgroundWorker pythonOutputReader;
         private TextDocument textDocument = new TextDocument();
 
         public TextDocument TextDocument
@@ -40,45 +36,23 @@ namespace PythonLab
             InitializeComponent();
         }
 
+        private void Instance_ErrorReceived(object sender, string error)
+        {
+            Dispatcher.BeginInvoke(new Action(() => this.TextDocument.Text += error));
+        }
+
+        private void Instance_OutputReceived(object sender, string output)
+        {
+            Dispatcher.BeginInvoke(new Action(() => this.TextDocument.Insert(this.offset, output)));
+        }
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            this.process = new Process
-            {
-                StartInfo = new ProcessStartInfo(@"C:\Python34\python.exe", "-i")
-                {
-                    CreateNoWindow = true,
-                    ErrorDialog = false,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                }
-            };
+            PythonProcess.Instance.ErrorReceived -= Instance_ErrorReceived;
+            PythonProcess.Instance.ErrorReceived += Instance_ErrorReceived;
 
-            this.process.Start();
-
-            this.pythonErrorReader = new BackgroundWorker
-            {
-                WorkerReportsProgress = true
-            };
-
-            this.pythonErrorReader.DoWork += this.pythonErrorReader_DoWork;
-
-            this.pythonErrorReader.RunWorkerAsync();
-
-            this.pythonOutputReader = new BackgroundWorker
-            {
-                WorkerReportsProgress = true
-            };
-
-            this.pythonOutputReader.DoWork += this.pythonOutputReader_DoWork;
-
-            this.pythonOutputReader.RunWorkerAsync();
-
-            this.TextEditor.TextArea.ReadOnlySectionProvider = new TextSegmentReadOnlySectionProvider<TextSegment>(this.TextDocument);
-
-            this.TextDocument.Changed -= TextDocument_Changed;
-            this.TextDocument.Changed += TextDocument_Changed;
+            PythonProcess.Instance.OutputReceived -= Instance_OutputReceived;
+            PythonProcess.Instance.OutputReceived += Instance_OutputReceived;
         }
 
         private void RaisePropertyChanged([CallerMemberName] string propertyName = null)
@@ -89,59 +63,27 @@ namespace PythonLab
             }
         }
 
-        private void TextDocument_Changed(object sender, DocumentChangeEventArgs e)
-        {
-            var nLines = this.TextDocument.Lines.Count;
-
-            var lastLineText = this.TextDocument.GetText(this.TextDocument.Lines[nLines - 1]);
-            var lastButOneLineText = this.TextDocument.GetText(this.TextDocument.Lines[nLines - 2]);
-
-            if (lastLineText == "" && lastButOneLineText.Contains(">>> "))
-            {
-                this.process.StandardInput.WriteLine(lastButOneLineText.Replace(">>> ", ""));
-                this.offset = this.TextDocument.TextLength;
-            }
-        }
-
         private void TextEditor_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Up)
             {
+                var lastLine = this.TextDocument.Lines.Last();
+
+                this.TextDocument.Remove(lastLine.Offset, lastLine.Length);
+
+                this.TextDocument.Text += PythonProcess.Prompt + this.history.Last();
+
                 e.Handled = true;
             }
-        }
-
-        private void pythonErrorReader_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var output = "";
-
-            while (true)
+            else if (e.Key == Key.Enter)
             {
-                output += (char) this.process.StandardError.Read();
+                var command = this.TextDocument.GetText(this.TextDocument.Lines.Last()).Replace(PythonProcess.Prompt, "");
 
-                if (output.EndsWith(">>> "))
-                {
-                    var output1 = output;
-                    Dispatcher.BeginInvoke(new Action(() => this.TextDocument.Text += output1));
-                    output = "";
-                }
-            }
-        }
+                this.history.Add(command);
 
-        private void pythonOutputReader_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var output = "";
+                PythonProcess.Instance.Run(command);
 
-            while (true)
-            {
-                output += (char) this.process.StandardOutput.Read();
-
-                if (output.Trim(" ".ToCharArray()).EndsWith("\r\n"))
-                {
-                    var output1 = output;
-                    Dispatcher.BeginInvoke(new Action(() => this.TextDocument.Insert(this.offset, output1)));
-                    output = "";
-                }
+                this.offset = this.TextDocument.TextLength + 1;
             }
         }
 

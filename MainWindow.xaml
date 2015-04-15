@@ -6,11 +6,11 @@
         Name ="Root"
         Loaded="MainWindow_Loaded">
     <Grid>
-        <avalonedit:TextEditor Name="TextEditor" 
-                               Document="{Binding ElementName=Root, Path=TextDocument}" 
+        <avalonedit:TextEditor Document="{Binding ElementName=Root, Path=TextDocument}" 
                                FontFamily="Courier New"
                                FontSize="14"
-                               HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                               HorizontalScrollBarVisibility="Auto" 
+                               VerticalScrollBarVisibility="Auto"
                                WordWrap="True"
                                PreviewKeyDown="TextEditor_OnPreviewKeyDown" />
     </Grid>
