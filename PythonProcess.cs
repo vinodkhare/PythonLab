@@ -53,7 +53,7 @@ namespace PythonLab
             }
         }
 
-        private void StartReading(StreamReader streamReader, string prompt, Action<string> action)
+        private void StartReading(StreamReader streamReader, string delim, Action<string> action)
         {
             var backgroundWorker = new BackgroundWorker();
 
@@ -65,7 +65,7 @@ namespace PythonLab
                 {
                     output += (char) streamReader.Read();
 
-                    if (output.EndsWith(prompt))
+                    if (output.EndsWith(delim))
                     {
                         action(output);
                         output = "";

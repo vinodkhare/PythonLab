@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,9 +11,25 @@ namespace PythonLab
 {
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private readonly List<string> history = new List<string>();
+        private ObservableCollection<string> history = new ObservableCollection<string>();
         private int offset;
         private TextDocument textDocument = new TextDocument();
+
+        public ObservableCollection<string> History
+        {
+            get { return this.history; }
+
+            set
+            {
+                if (value.Equals(this.history))
+                {
+                    return;
+                }
+
+                this.history = value;
+                this.RaisePropertyChanged();
+            }
+        }
 
         public TextDocument TextDocument
         {
@@ -71,7 +87,7 @@ namespace PythonLab
 
                 this.TextDocument.Remove(lastLine.Offset, lastLine.Length);
 
-                this.TextDocument.Text += PythonProcess.Prompt + this.history.Last();
+                this.TextDocument.Text += PythonProcess.Prompt + this.History.Last();
 
                 e.Handled = true;
             }
