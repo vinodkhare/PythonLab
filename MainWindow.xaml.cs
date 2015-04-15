@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Editing;
 
 namespace PythonLab
 {
@@ -50,6 +51,8 @@ namespace PythonLab
         public MainWindow()
         {
             InitializeComponent();
+
+            this.TextEditor.TextArea.ReadOnlySectionProvider = new ReadOnlySectionProvider(this.TextDocument);
         }
 
         private void Instance_ErrorReceived(object sender, string error)

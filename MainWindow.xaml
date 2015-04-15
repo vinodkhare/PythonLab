@@ -8,10 +8,12 @@
         Width="525"
         Loaded="MainWindow_Loaded">
     <Grid>
-        <avalonedit:TextEditor Document="{Binding ElementName=Root, Path=TextDocument}"
+        <avalonedit:TextEditor Name="TextEditor"
+                               Document="{Binding ElementName=Root, Path=TextDocument}"
                                FontFamily="Courier New"
                                FontSize="14"
                                HorizontalScrollBarVisibility="Auto"
+                               IsReadOnly="true"
                                VerticalScrollBarVisibility="Auto"
                                WordWrap="True"
                                PreviewKeyDown="TextEditor_OnPreviewKeyDown" />
