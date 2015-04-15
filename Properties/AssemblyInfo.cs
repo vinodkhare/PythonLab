@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("PythonLab")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Hewlett-Packard")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PythonLab")]
-[assembly: AssemblyCopyright("Copyright © Hewlett-Packard 2015")]
+[assembly: AssemblyCopyright("Copyright © Vinod Khare")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

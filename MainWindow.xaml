@@ -11,6 +11,7 @@
                                FontFamily="Courier New"
                                FontSize="14"
                                HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                               WordWrap="True"  />
+                               WordWrap="True"
+                               PreviewKeyDown="TextEditor_OnPreviewKeyDown" />
     </Grid>
 </Window>

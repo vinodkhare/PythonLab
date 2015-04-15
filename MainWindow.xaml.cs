@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using ICSharpCode.AvalonEdit.Document;
-using System.Linq;
 using ICSharpCode.AvalonEdit.Editing;
 
 namespace PythonLab
@@ -13,11 +13,11 @@ namespace PythonLab
     {
         private string command;
         private string input = "";
+        private int offset;
         private Process process;
         private BackgroundWorker pythonErrorReader;
         private BackgroundWorker pythonOutputReader;
         private TextDocument textDocument = new TextDocument();
-        private int offset;
 
         public TextDocument TextDocument
         {
@@ -103,13 +103,21 @@ namespace PythonLab
             }
         }
 
+        private void TextEditor_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up)
+            {
+                e.Handled = true;
+            }
+        }
+
         private void pythonErrorReader_DoWork(object sender, DoWorkEventArgs e)
         {
             var output = "";
 
             while (true)
             {
-                output += (char)this.process.StandardError.Read();
+                output += (char) this.process.StandardError.Read();
 
                 if (output.EndsWith(">>> "))
                 {
@@ -126,7 +134,7 @@ namespace PythonLab
 
             while (true)
             {
-                output += (char)this.process.StandardOutput.Read();
+                output += (char) this.process.StandardOutput.Read();
 
                 if (output.Trim(" ".ToCharArray()).EndsWith("\r\n"))
                 {
