@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using PythonLab.Properties;
 
 namespace PythonLab
 {
@@ -10,12 +11,12 @@ namespace PythonLab
         public const string Prompt = ">>> ";
 
         public static readonly PythonProcess Instance = new PythonProcess();
-        
+
         private readonly Process process = new Process();
 
         private PythonProcess()
         {
-            this.process.StartInfo = new ProcessStartInfo(@"C:\Python34\python.exe", "-i")
+            this.process.StartInfo = new ProcessStartInfo(Path.Combine(Settings.Default.PythonPath, "python.exe"), "-i")
             {
                 CreateNoWindow = true,
                 ErrorDialog = false,
@@ -27,10 +28,8 @@ namespace PythonLab
 
             this.process.Start();
 
-            this.StartReading(this.process.StandardError, ">>> ", this.RaiseErrorReceived);
+            this.StartReading(this.process.StandardError, Prompt, this.RaiseErrorReceived);
             this.StartReading(this.process.StandardOutput, "\r\n", this.RaiseOutputReceived);
-
-            Console.WriteLine("Python process started.");
         }
 
         public void Run(string command)
