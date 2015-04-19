@@ -1,6 +1,8 @@
 # PythonLab
 PythonLab is a scientific computing environment for python.
 
+![screenshot](https://github.com/vinodkhare/PythonLab/blob/master/ScreenShots/PythonLab.png)
+
 ### Why PythonLab
 Existing python environments (IDEs or notebook environments like IPython) have several disadvantages for the scientific 
 programmer who is more of a scientist and less of a programmer.
